@@ -12,7 +12,8 @@ http.createServer((req, res) => {
   if (!req.headers.authorization) return send(401, { message: 'Bad credentials' });
   if (!m) return send(404, { message: 'Not Found' });
   const p = path.join(process.cwd(), decodeURIComponent(m[1]));
-  if (req.method === 'PUT') { let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => { const j = JSON.parse(b); console.log('MOCK commit (not written):', m[1], j.message); send(200, { content: { sha: 'mocksha' }, commit: { sha: 'mockcommit0000' } }); }); return; }
+  if (req.method === 'PUT') { let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => { const j = JSON.parse(b); console.log('MOCK commit (not written to repo):', m[1], j.message);
+    if (process.env.MOCK_WRITE_DIR) { const out = path.join(process.env.MOCK_WRITE_DIR, m[1]); fs.mkdirSync(path.dirname(out), { recursive: true }); fs.writeFileSync(out, Buffer.from(j.content, 'base64')); } send(200, { content: { sha: 'mocksha' }, commit: { sha: 'mockcommit0000' } }); }); return; }
   if (!fs.existsSync(p)) return send(404, { message: 'Not Found' });
   if (fs.statSync(p).isDirectory()) return send(200, fs.readdirSync(p).map((n) => ({ type: 'file', name: n, path: `${m[1]}/${n}`, sha: 'x', size: fs.statSync(path.join(p, n)).size })));
   send(200, { sha: 'x', content: fs.readFileSync(p).toString('base64') });

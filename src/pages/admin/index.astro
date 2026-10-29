@@ -37,6 +37,16 @@ import '../../styles/global.css';
           </div>
         </div>
         <div id="fields" class="grid sm:grid-cols-2 gap-3"></div>
+        <div id="recipeRows" hidden class="space-y-6">
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-black/60 mb-2">Ingredients</h3>
+            <div id="ingRows" class="rows"></div>
+          </div>
+          <div>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-black/60 mb-2">Steps</h3>
+            <div id="stepRows" class="rows"></div>
+          </div>
+        </div>
         <div class="grid lg:grid-cols-2 gap-4">
           <div>
             <div class="flex items-center justify-between mb-1">
@@ -61,14 +71,57 @@ import '../../styles/global.css';
     .fld label { display: block; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: rgb(0 0 0 / .6); margin-bottom: .2rem; }
     .fld input, .fld textarea, .fld select { width: 100%; padding: .4rem .55rem; border: 1px solid rgb(0 0 0 / .15); border-radius: .3rem; font-size: .9rem; }
     .fld textarea { font-family: ui-monospace, monospace; font-size: .8rem; min-height: 9rem; }
+    .rows input, .rows textarea { width: 100%; padding: .35rem .5rem; border: 1px solid rgb(0 0 0 / .15); border-radius: .3rem; font-size: .9rem; background: #fff; }
+    .rows input:focus, .rows textarea:focus { outline: 2px solid var(--color-accent); outline-offset: -1px; border-color: transparent; }
+    .rows .row, .rows .ing-head { display: grid; gap: .4rem; align-items: center; padding: .2rem 0; }
+    .rows .ing, .rows .ing-head { grid-template-columns: 1.1rem 1.6rem 6rem 8rem minmax(8rem, 1.3fr) minmax(8rem, 1.6fr) auto; }
+    .rows .ing-head span { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: rgb(0 0 0 / .5); }
+    .rows .sec { grid-template-columns: 1.1rem 1fr auto; margin-top: .6rem; }
+    .rows .sec-title { font-weight: 600; background: rgb(0 0 0 / .04); }
+    .rows .step { grid-template-columns: 1.1rem 1.6rem 1fr auto; align-items: start; }
+    .rows .step textarea { resize: vertical; line-height: 1.45; min-height: 2.6rem; overflow: hidden; }
+    .rows .num { font-size: .8rem; font-weight: 700; color: var(--color-accent); text-align: right; }
+    .rows .step .num { padding-top: .45rem; }
+    .rows .drag { cursor: grab; color: rgb(0 0 0 / .3); user-select: none; font-size: .8rem; text-align: center; }
+    .rows .lbl { display: none; }
+    .rows .acts { display: flex; gap: .15rem; }
+    .rows .acts button { width: 1.8rem; height: 1.8rem; border-radius: .3rem; border: 1px solid rgb(0 0 0 / .12); font-size: .8rem; color: rgb(0 0 0 / .65); }
+    .rows .acts button:hover { border-color: var(--color-accent); color: var(--color-accent); }
+    .rows .acts .del:hover { border-color: #b91c1c; color: #b91c1c; }
+    .rows .dragging { opacity: .4; }
+    .rows .dropover { box-shadow: 0 -2px 0 var(--color-accent); }
+    .rows .row-btns { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .5rem; }
+    .rows .row-btns button { padding: .35rem .8rem; border-radius: .3rem; border: 1px dashed rgb(0 0 0 / .3); font-size: .85rem; }
+    .rows .row-btns button:hover { border-color: var(--color-accent); color: var(--color-accent); }
+    .rows .hint { font-size: .75rem; color: rgb(0 0 0 / .45); }
+    @media (max-width: 760px) {
+      .rows .ing-head { display: none; }
+      .rows .ing { grid-template-columns: 4.1rem 1fr 1fr; grid-template-areas: "num amount measure" "acts ingredient ingredient" "acts comment comment"; gap: .25rem .4rem; align-items: start; border: 1px solid rgb(0 0 0 / .1); border-radius: .5rem; padding: .4rem; margin-bottom: .4rem; }
+      .rows .ing .acts { display: grid; grid-template-columns: 1.9rem 1.9rem; gap: .25rem; padding-top: 1rem; }
+      .rows .ing .acts button { width: 1.9rem; height: 1.9rem; }
+      .rows .ing .num { padding-top: 1.1rem; }
+      .rows .ing .drag { display: none; }
+      .rows .ing .num { grid-area: num; text-align: left; }
+      .rows .c-amount { grid-area: amount; } .rows .c-measure { grid-area: measure; }
+      .rows .c-ingredient { grid-area: ingredient; } .rows .c-comment { grid-area: comment; }
+      .rows .ing .acts { grid-area: acts; }
+      .rows .lbl { display: block; font-size: .62rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: rgb(0 0 0 / .45); }
+      .rows .step { grid-template-columns: 1.6rem 1fr; grid-template-areas: "num text" ". acts"; border: 1px solid rgb(0 0 0 / .1); border-radius: .5rem; padding: .5rem; margin-bottom: .5rem; }
+      .rows .step .drag { display: none; } .rows .step .num { grid-area: num; text-align: left; } .rows .step textarea { grid-area: text; } .rows .step .acts { grid-area: acts; justify-content: flex-end; }
+      .rows .sec .drag { display: none; } .rows .sec { grid-template-columns: 1fr; } .rows .sec .acts { justify-content: flex-end; }
+      .rows .step .acts button, .rows .sec .acts button { width: 2.2rem; height: 2.2rem; }
+    }
   </style>
   <script>
     import { marked } from 'marked';
     import YAML from 'yaml';
+    import { parseDoc, serializeDoc, ingredientsToRows, rowsToIngredients, stepsToRows, rowsToSteps, fieldValue, listDisplay } from '../../lib/recipe-model.js';
+    import { ingredientEditor, stepsEditor } from '../../lib/row-editor.js';
 
     const $ = (s) => document.querySelector(s);
     const DIRS = { recipes: 'src/content/recipes', blog: 'src/content/blog' };
     let col = 'recipes', files = [], cur = null; // cur = { path, sha, fm, isNew }
+    let ingRows = [], stepRows = [];
 
     const SCHEMAS = {
       blog: [
@@ -86,8 +139,6 @@ import '../../styles/global.css';
         { k: 'slug', label: 'Slug (URL)' },
         { k: 'categories', label: 'Categories (comma separated)', type: 'list' },
         { k: 'comingSoon', label: 'Coming soon', type: 'bool' },
-        { k: 'ingredients', label: 'Ingredients (YAML: sections with title + items of amount/measure/ingredient/comment)', type: 'yaml', wide: true },
-        { k: 'steps', label: 'Steps (one step per line)', type: 'lines', wide: true },
       ],
     };
 
@@ -102,10 +153,7 @@ import '../../styles/global.css';
     const slugify = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
     const dateStr = (v) => (v instanceof Date ? v.toISOString().slice(0, 10) : v ? String(v).slice(0, 10) : '');
 
-    function parse(text) {
-      const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-      return m ? { fm: YAML.parse(m[1]) || {}, body: m[2] } : { fm: {}, body: text };
-    }
+    const parse = parseDoc;
 
     async function loadList() {
       $('#files').innerHTML = '<li class="text-black/50 p-2">Loading…</li>';
@@ -127,7 +175,7 @@ import '../../styles/global.css';
         else if (f.type === 'select') input = `<select data-k="${f.k}">${f.options.map((o) => `<option${(v || '') === o ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
         else if (f.type === 'yaml') input = `<textarea data-k="${f.k}" rows="12">${esc(v ? YAML.stringify(v, { lineWidth: 0 }) : '')}</textarea>`;
         else if (f.type === 'lines') input = `<textarea data-k="${f.k}" rows="8">${esc((v || []).join('\n'))}</textarea>`;
-        else input = `<input data-k="${f.k}" type="${f.type === 'date' ? 'date' : 'text'}" value="${esc(f.type === 'list' ? (v || []).join(', ') : f.type === 'date' ? dateStr(v) : v ?? '')}" />`;
+        else input = `<input data-k="${f.k}" type="${f.type === 'date' ? 'date' : 'text'}" value="${esc(f.type === 'list' ? listDisplay(v) : f.type === 'date' ? dateStr(v) : v ?? '')}" />`;
         return `<div class="fld${f.wide ? ' sm:col-span-2' : ''}"><label>${f.label}</label>${input}</div>`;
       }).join('');
     }
@@ -136,18 +184,16 @@ import '../../styles/global.css';
       const fm = { ...cur.fm };
       for (const f of SCHEMAS[col]) {
         const el = document.querySelector(`[data-k="${f.k}"]`);
-        const raw = el.value;
-        let v;
-        if (f.type === 'bool') v = raw === 'true';
-        else if (f.type === 'list') v = raw.split(',').map((s) => s.trim()).filter(Boolean);
-        else if (f.type === 'lines') v = raw.split('\n').map((s) => s.trim()).filter(Boolean);
-        else if (f.type === 'yaml') v = raw.trim() ? YAML.parse(raw) : [];
-        else v = raw.trim();
+        const v = f.type === 'select' ? (el.value || undefined) : fieldValue(cur.fm[f.k], el.value, f.type);
         if (v === '' || v === undefined) delete fm[f.k]; else fm[f.k] = v;
+      }
+      if (col === 'recipes') {
+        fm.ingredients = rowsToIngredients(ingRows);
+        fm.steps = rowsToSteps(stepRows);
       }
       return fm;
     }
-    const serialize = (fm, body) => `---\n${YAML.stringify(fm, { lineWidth: 0 })}---\n${body ? (body.startsWith('\n') ? body : '\n' + body) : ''}`;
+    const serialize = serializeDoc;
 
     function preview() {
       if (!cur) return;
@@ -184,7 +230,15 @@ import '../../styles/global.css';
       $('#empty').hidden = true; $('#editor').hidden = false;
       $('#path').textContent = cur.path + (cur.sha ? '' : ' (new)');
       $('#bodyLabel').textContent = col === 'recipes' ? 'Notes / extra Markdown (optional)' : 'Markdown';
-      renderFields(fm); $('#body').value = body.replace(/^\n/, ''); preview(); renderList();
+      renderFields(fm);
+      $('#recipeRows').hidden = col !== 'recipes';
+      if (col === 'recipes') {
+        ingRows = ingredientsToRows(fm.ingredients || []);
+        stepRows = stepsToRows(fm.steps || []);
+        ingredientEditor($('#ingRows'), ingRows, preview);
+        stepsEditor($('#stepRows'), stepRows, preview);
+      }
+      $('#body').value = body.replace(/^\n/, ''); preview(); renderList();
     }
 
     $('#new').onclick = () => {
