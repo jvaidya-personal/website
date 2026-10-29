@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const ORDER = ['Dal', 'Chai', 'Chicken', 'Vegan', 'Sauces/Chutneys', 'Desserts', 'Other'];
+const rs = (await getCollection('recipes')).map((r) => r.data).sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
+const all = [...new Set(rs.flatMap((r) => r.categories))];
+const used = [...ORDER.filter((c) => all.includes(c)), ...all.filter((c) => !ORDER.includes(c)).sort()];
+---
+<Base title="Recipes" description="Jiten & Alicia's family recipes" wide>
+  <h1 class="text-3xl font-semibold tracking-tight mb-6">Family Recipes</h1>
+  <input id="q" type="search" placeholder="Search recipes…" aria-label="Search recipes" autocomplete="off"
+    class="w-full text-lg px-4 py-3 border-2 border-black/15 rounded-lg outline-none focus:border-accent" />
+  <div class="flex flex-wrap gap-2 my-5" id="chips">
+    <button class="chip on" data-cat="">All</button>
+    {used.map((c) => <button class="chip" data-cat={c}>{c}</button>)}
+  </div>
+  <ul id="list" class="grid gap-3 grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
+    {rs.map((r) => (
+      <li class="card" data-cats={r.categories.join('|')} data-text={r.title.toLowerCase()}>
+        <a href={`/recipes/${r.slug}`} class="block h-full p-4 border border-black/10 rounded-xl hover:border-accent transition-colors">
+          <span class="block font-serif text-[1.05rem] leading-snug">{r.title}</span>
+          {r.comingSoon && <span class="inline-block mt-2 text-[0.7rem] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-amber-800">Coming soon</span>}
+          <span class="block mt-2 text-xs text-black/55">{r.categories.join(' · ')}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <p id="none" hidden class="text-black/60 mt-6">No recipes match.</p>
+  <p class="mt-8 text-sm text-black/50">{rs.length} recipes · Jiten &amp; Alicia's recipes</p>
+  <style>
+    .chip { font-size: .9rem; padding: .4rem .9rem; border-radius: 999px; border: 1px solid rgb(0 0 0 / .15); background: #fff; cursor: pointer; }
+    .chip.on { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+  </style>
+  <script is:inline>
+    const q = document.getElementById('q'), cards = [...document.querySelectorAll('.card')]; let cat = '';
+    function f() { const s = q.value.trim().toLowerCase(); let n = 0; cards.forEach((c) => { const ok = (!s || c.dataset.text.includes(s)) && (!cat || c.dataset.cats.split('|').includes(cat)); c.hidden = !ok; n += ok; }); document.getElementById('none').hidden = n > 0; }
+    q.addEventListener('input', f);
+    document.querySelectorAll('.chip').forEach((b) => b.onclick = () => { document.querySelectorAll('.chip').forEach((x) => x.classList.remove('on')); b.classList.add('on'); cat = b.dataset.cat; f(); });
+  </script>
+</Base>

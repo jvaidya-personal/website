@@ -1,0 +1,17 @@
+---
+import { fmt, tagSlug } from '../lib';
+const { items } = Astro.props;
+---
+<ul class="divide-y divide-black/10">
+  {items.map((p) => (
+    <li class="py-5">
+      <a href={`/blog/${p.id}`} class="text-xl font-semibold hover:text-accent">{p.data.title}</a>
+      <div class="text-sm text-black/55 mt-1 flex flex-wrap gap-x-3">
+        <time datetime={p.data.date.toISOString()}>{fmt(p.data.date)}</time>
+        {p.data.source === 'facebook' && <span>Originally on Facebook{p.data.originalDate && `, ${fmt(p.data.originalDate)}`}</span>}
+        {p.data.tags.map((t) => <a href={`/blog/tags/${tagSlug(t)}`} class="text-accent">#{t}</a>)}
+      </div>
+      {p.data.description && <p class="mt-2 text-black/75">{p.data.description}</p>}
+    </li>
+  ))}
+</ul>

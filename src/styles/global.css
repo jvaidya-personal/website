@@ -1,0 +1,22 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-accent: #b5482a;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
+}
+
+html { background: #fff; color: #000; }
+a { text-underline-offset: 3px; }
+.prose a, .bio a { color: var(--color-accent); }
+
+@media print {
+  .no-print, header.site, footer.site { display: none !important; }
+  body { font-size: 12pt; color: #000; }
+  main { max-width: none !important; padding: 0 !important; }
+  a { color: #000 !important; text-decoration: none !important; }
+  h2 { color: #000 !important; }
+  ul.ing li { border: 0 !important; padding: 2px 0 !important; }
+  section { break-inside: avoid-page; }
+}

@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostList from '../../components/PostList.astro';
+import { posts, tagSlug } from '../../lib';
+const items = await posts();
+const tags = [...new Set(items.flatMap((p) => p.data.tags))].sort();
+---
+<Base title="Blog">
+  <h1 class="text-3xl font-semibold tracking-tight">Blog</h1>
+  <p class="text-sm text-black/55 mt-2"><a href="/rss.xml" class="text-accent">RSS feed</a></p>
+  {tags.length > 0 && <div class="flex flex-wrap gap-2 mt-4 text-sm">{tags.map((t) => <a href={`/blog/tags/${tagSlug(t)}`} class="px-2.5 py-1 rounded-full border border-black/15 hover:border-accent">#{t}</a>)}</div>}
+  <PostList items={items} />
+</Base>

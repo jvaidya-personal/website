@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+export async function getStaticPaths() {
+  return (await getCollection('recipes')).map((r) => ({ params: { slug: r.data.slug }, props: { r: r.data } }));
+}
+const { r } = Astro.props;
+const HIDDEN = new Set(['Count']);
+const qty = (i) => [i.amount, i.measure].filter((x) => x && !HIDDEN.has(x)).join(' ');
+---
+<Base title={r.title}>
+  <article class="recipe font-serif text-[1.1rem] leading-relaxed">
+    <p class="no-print font-sans text-sm"><a href="/recipes" class="text-accent">&larr; All recipes</a></p>
+    <h1 class="text-3xl sm:text-4xl leading-tight mt-3 mb-3">{r.title}</h1>
+    <div class="no-print flex gap-2 font-sans">
+      {r.categories.map((c) => <span class="text-[0.7rem] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-accent/10 text-accent">{c}</span>)}
+    </div>
+    {r.comingSoon && <p class="mt-5 bg-amber-50 border-l-4 border-amber-500 px-4 py-3 rounded">Coming soon &mdash; this recipe hasn't been fully written down yet.</p>}
+    {r.ingredients.length > 0 && (
+      <section>
+        <h2 class="font-sans font-bold uppercase tracking-widest text-sm text-accent mt-10 mb-3">Ingredients</h2>
+        {r.ingredients.map((s) => (
+          <>
+            {s.title && <h3 class="font-sans font-semibold mt-6 mb-1">{s.title}</h3>}
+            <ul class="ing">
+              {s.items.map((i) => (
+                <li class="flex gap-4 py-2 border-b border-black/10">
+                  <span class="shrink-0 w-28 sm:w-32 font-sans font-bold text-[0.95rem] pt-0.5">{qty(i)}</span>
+                  <span>{i.ingredient}{i.comment && <>, <span class="text-black/60">{i.comment}</span></>}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ))}
+      </section>
+    )}
+    {r.steps.length > 0 && (
+      <section>
+        <h2 class="font-sans font-bold uppercase tracking-widest text-sm text-accent mt-10 mb-3">Steps</h2>
+        <ol class="list-decimal pl-6 space-y-4 marker:text-accent marker:font-bold">
+          {r.steps.map((s) => <li class="pl-1">{s}</li>)}
+        </ol>
+      </section>
+    )}
+    {r.notes && r.notes.length > 0 && (
+      <section>
+        <h2 class="font-sans font-bold uppercase tracking-widest text-sm text-accent mt-10 mb-3">Notes</h2>
+        {r.notes.map((n) => <p>{n}</p>)}
+      </section>
+    )}
+    <p class="no-print mt-10 font-sans"><button onclick="window.print()" class="px-4 py-2 rounded-lg border border-accent text-accent hover:bg-accent hover:text-white">Print this recipe</button></p>
+  </article>
+</Base>

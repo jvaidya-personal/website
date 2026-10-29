@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+interface Props { title?: string; description?: string; wide?: boolean }
+const { title, description = 'Jiten Vaidya — technologist, co-founder of PlanetScale, advisor and executive coach.', wide = false } = Astro.props;
+const fullTitle = title ? `${title} · Jiten Vaidya` : 'Jiten Vaidya';
+const path = Astro.url.pathname;
+const nav = [
+  { href: '/', label: 'Home', active: path === '/' },
+  { href: '/recipes', label: 'Recipes', active: path.startsWith('/recipes') },
+  { href: '/blog', label: 'Blog', active: path.startsWith('/blog') },
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL('/images/card.jpg', Astro.site)} />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="alternate" type="application/rss+xml" title="Jiten Vaidya — Blog" href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body class="min-h-screen bg-white text-black font-sans antialiased flex flex-col">
+    <header class="site border-b border-black/10">
+      <div class="mx-auto max-w-3xl px-5 py-4 flex items-center justify-between gap-4">
+        <a href="/" class="font-semibold tracking-tight text-lg">Jiten Vaidya</a>
+        <nav class="flex gap-5 text-sm">
+          {nav.map((n) => (
+            <a href={n.href} class:list={['hover:text-accent', n.active ? 'text-accent font-semibold' : 'text-black']} aria-current={n.active ? 'page' : undefined}>{n.label}</a>
+          ))}
+        </nav>
+      </div>
+    </header>
+    <main class:list={['mx-auto w-full px-5 py-10 flex-1', wide ? 'max-w-5xl' : 'max-w-3xl']}>
+      <slot />
+    </main>
+    <footer class="site border-t border-black/10 text-sm text-black/60">
+      <div class="mx-auto max-w-3xl px-5 py-6 flex justify-between gap-4">
+        <span>© {new Date().getFullYear()} Jiten Vaidya</span>
+        <a href="/rss.xml" class="hover:text-accent">RSS</a>
+      </div>
+    </footer>
+  </body>
+</html>

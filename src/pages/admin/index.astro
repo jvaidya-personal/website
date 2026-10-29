@@ -1,0 +1,238 @@
+---
+import '../../styles/global.css';
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin · Jiten Vaidya</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+</head>
+<body class="bg-white text-black font-sans min-h-screen">
+  <header class="border-b border-black/10">
+    <div class="px-5 py-3 flex flex-wrap items-center gap-4 justify-between">
+      <div class="flex items-center gap-4"><a href="/" class="font-semibold">Jiten Vaidya</a><span class="text-sm text-black/50">Admin</span></div>
+      <div id="who" class="text-sm text-black/60">Checking access…</div>
+    </div>
+  </header>
+  <div class="grid md:grid-cols-[260px_1fr] min-h-[calc(100vh-53px)]">
+    <aside class="border-r border-black/10 p-4">
+      <div class="flex gap-1 mb-3" role="tablist">
+        <button data-col="recipes" class="tab on">Recipes</button>
+        <button data-col="blog" class="tab">Blog</button>
+      </div>
+      <button id="new" class="w-full mb-3 px-3 py-2 rounded bg-black text-white text-sm">+ New</button>
+      <input id="filter" placeholder="Filter…" class="w-full mb-2 px-2 py-1.5 border border-black/15 rounded text-sm" />
+      <ul id="files" class="text-sm max-h-[40vh] md:max-h-[75vh] overflow-auto"></ul>
+    </aside>
+    <section class="p-5 min-w-0">
+      <div id="empty" class="text-black/50">Pick a file on the left or create a new one.</div>
+      <form id="editor" hidden class="space-y-4">
+        <div class="flex flex-wrap items-center gap-3 justify-between">
+          <code id="path" class="text-sm text-black/60 break-all"></code>
+          <div class="flex gap-2 items-center">
+            <span id="status" class="text-sm text-black/60"></span>
+            <button type="submit" class="px-4 py-2 rounded bg-accent text-white text-sm font-semibold">Save &amp; publish</button>
+          </div>
+        </div>
+        <div id="fields" class="grid sm:grid-cols-2 gap-3"></div>
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="body" class="text-xs font-semibold uppercase tracking-wider text-black/60" id="bodyLabel">Markdown</label>
+              <label class="text-xs text-accent cursor-pointer">Upload image… <input type="file" id="upload" accept="image/*" hidden /></label>
+            </div>
+            <textarea id="body" class="w-full h-[55vh] p-3 border border-black/15 rounded font-mono text-sm"></textarea>
+          </div>
+          <div>
+            <div class="text-xs font-semibold uppercase tracking-wider text-black/60 mb-1">Preview</div>
+            <div id="preview" class="prose max-w-none border border-black/10 rounded p-4 h-[55vh] overflow-auto prose-a:text-accent"></div>
+          </div>
+        </div>
+      </form>
+    </section>
+  </div>
+  <style is:global>
+    .tab { padding: .3rem .8rem; border-radius: 999px; font-size: .85rem; border: 1px solid rgb(0 0 0 / .15); }
+    .tab.on { background: #000; color: #fff; border-color: #000; }
+    #files li button { width: 100%; text-align: left; padding: .35rem .5rem; border-radius: .3rem; }
+    #files li button:hover, #files li button.on { background: rgb(0 0 0 / .06); }
+    .fld label { display: block; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: rgb(0 0 0 / .6); margin-bottom: .2rem; }
+    .fld input, .fld textarea, .fld select { width: 100%; padding: .4rem .55rem; border: 1px solid rgb(0 0 0 / .15); border-radius: .3rem; font-size: .9rem; }
+    .fld textarea { font-family: ui-monospace, monospace; font-size: .8rem; min-height: 9rem; }
+  </style>
+  <script>
+    import { marked } from 'marked';
+    import YAML from 'yaml';
+
+    const $ = (s) => document.querySelector(s);
+    const DIRS = { recipes: 'src/content/recipes', blog: 'src/content/blog' };
+    let col = 'recipes', files = [], cur = null; // cur = { path, sha, fm, isNew }
+
+    const SCHEMAS = {
+      blog: [
+        { k: 'title', label: 'Title' },
+        { k: 'date', label: 'Date', type: 'date' },
+        { k: 'description', label: 'Description', wide: true },
+        { k: 'tags', label: 'Tags (comma separated)', type: 'list' },
+        { k: 'draft', label: 'Draft', type: 'bool' },
+        { k: 'source', label: 'Source', type: 'select', options: ['', 'facebook'] },
+        { k: 'originalDate', label: 'Original date (Facebook)', type: 'date' },
+        { k: 'originalUrl', label: 'Original URL (Facebook)', wide: true },
+      ],
+      recipes: [
+        { k: 'title', label: 'Title' },
+        { k: 'slug', label: 'Slug (URL)' },
+        { k: 'categories', label: 'Categories (comma separated)', type: 'list' },
+        { k: 'comingSoon', label: 'Coming soon', type: 'bool' },
+        { k: 'ingredients', label: 'Ingredients (YAML: sections with title + items of amount/measure/ingredient/comment)', type: 'yaml', wide: true },
+        { k: 'steps', label: 'Steps (one step per line)', type: 'lines', wide: true },
+      ],
+    };
+
+    async function api(path, init) {
+      const r = await fetch(`/api/admin/${path}`, { ...init, headers: { 'content-type': 'application/json' }, credentials: 'same-origin' });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.detail || d.error || `HTTP ${r.status}`);
+      return d;
+    }
+    const status = (t) => ($('#status').textContent = t);
+    const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const slugify = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+    const dateStr = (v) => (v instanceof Date ? v.toISOString().slice(0, 10) : v ? String(v).slice(0, 10) : '');
+
+    function parse(text) {
+      const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+      return m ? { fm: YAML.parse(m[1]) || {}, body: m[2] } : { fm: {}, body: text };
+    }
+
+    async function loadList() {
+      $('#files').innerHTML = '<li class="text-black/50 p-2">Loading…</li>';
+      try {
+        files = (await api(`files?collection=${col}`)).files;
+        renderList();
+      } catch (e) { $('#files').innerHTML = `<li class="text-red-700 p-2">${esc(e.message)}</li>`; }
+    }
+    function renderList() {
+      const q = $('#filter').value.toLowerCase();
+      $('#files').innerHTML = files.filter((f) => f.name.includes(q)).map((f) => `<li><button data-path="${esc(f.path)}" class="${cur?.path === f.path ? 'on' : ''}">${esc(f.name.replace(/\.md$/, ''))}</button></li>`).join('') || '<li class="text-black/50 p-2">No files.</li>';
+    }
+
+    function renderFields(fm) {
+      $('#fields').innerHTML = SCHEMAS[col].map((f) => {
+        const v = fm[f.k];
+        let input;
+        if (f.type === 'bool') input = `<select data-k="${f.k}"><option value="false"${v ? '' : ' selected'}>No</option><option value="true"${v ? ' selected' : ''}>Yes</option></select>`;
+        else if (f.type === 'select') input = `<select data-k="${f.k}">${f.options.map((o) => `<option${(v || '') === o ? ' selected' : ''}>${o}</option>`).join('')}</select>`;
+        else if (f.type === 'yaml') input = `<textarea data-k="${f.k}" rows="12">${esc(v ? YAML.stringify(v, { lineWidth: 0 }) : '')}</textarea>`;
+        else if (f.type === 'lines') input = `<textarea data-k="${f.k}" rows="8">${esc((v || []).join('\n'))}</textarea>`;
+        else input = `<input data-k="${f.k}" type="${f.type === 'date' ? 'date' : 'text'}" value="${esc(f.type === 'list' ? (v || []).join(', ') : f.type === 'date' ? dateStr(v) : v ?? '')}" />`;
+        return `<div class="fld${f.wide ? ' sm:col-span-2' : ''}"><label>${f.label}</label>${input}</div>`;
+      }).join('');
+    }
+
+    function collect() {
+      const fm = { ...cur.fm };
+      for (const f of SCHEMAS[col]) {
+        const el = document.querySelector(`[data-k="${f.k}"]`);
+        const raw = el.value;
+        let v;
+        if (f.type === 'bool') v = raw === 'true';
+        else if (f.type === 'list') v = raw.split(',').map((s) => s.trim()).filter(Boolean);
+        else if (f.type === 'lines') v = raw.split('\n').map((s) => s.trim()).filter(Boolean);
+        else if (f.type === 'yaml') v = raw.trim() ? YAML.parse(raw) : [];
+        else v = raw.trim();
+        if (v === '' || v === undefined) delete fm[f.k]; else fm[f.k] = v;
+      }
+      return fm;
+    }
+    const serialize = (fm, body) => `---\n${YAML.stringify(fm, { lineWidth: 0 })}---\n${body ? (body.startsWith('\n') ? body : '\n' + body) : ''}`;
+
+    function preview() {
+      if (!cur) return;
+      let html = '';
+      let fm = {};
+      try { fm = collect(); } catch (e) { html += `<p style="color:#b91c1c">Frontmatter error: ${esc(e.message)}</p>`; }
+      if (fm.title) html += `<h1>${esc(fm.title)}</h1>`;
+      if (col === 'recipes') {
+        if (fm.comingSoon) html += '<p><em>Coming soon</em></p>';
+        if (Array.isArray(fm.ingredients) && fm.ingredients.length) {
+          html += '<h2>Ingredients</h2>';
+          for (const s of fm.ingredients) {
+            if (s?.title) html += `<h3>${esc(s.title)}</h3>`;
+            html += '<ul>' + (s?.items || []).map((i) => `<li><strong>${esc([i.amount, i.measure !== 'Count' ? i.measure : ''].filter(Boolean).join(' '))}</strong> ${esc(i.ingredient)}${i.comment ? `, <span style="color:#666">${esc(i.comment)}</span>` : ''}</li>`).join('') + '</ul>';
+          }
+        }
+        if (fm.steps?.length) html += '<h2>Steps</h2><ol>' + fm.steps.map((s) => `<li>${esc(s)}</li>`).join('') + '</ol>';
+      }
+      html += marked.parse($('#body').value || '');
+      $('#preview').innerHTML = html;
+    }
+
+    async function open(path) {
+      status('Loading…');
+      try {
+        const f = await api(`file?path=${encodeURIComponent(path)}`);
+        const { fm, body } = parse(f.content);
+        cur = { path, sha: f.sha, fm };
+        show(fm, body);
+        status('');
+      } catch (e) { status(`Error: ${e.message}`); }
+    }
+    function show(fm, body) {
+      $('#empty').hidden = true; $('#editor').hidden = false;
+      $('#path').textContent = cur.path + (cur.sha ? '' : ' (new)');
+      $('#bodyLabel').textContent = col === 'recipes' ? 'Notes / extra Markdown (optional)' : 'Markdown';
+      renderFields(fm); $('#body').value = body.replace(/^\n/, ''); preview(); renderList();
+    }
+
+    $('#new').onclick = () => {
+      const title = prompt(col === 'blog' ? 'Post title' : 'Recipe title');
+      if (!title) return;
+      const slug = slugify(title);
+      const fm = col === 'blog'
+        ? { title, date: new Date().toISOString().slice(0, 10), tags: [], draft: true }
+        : { title, slug, categories: ['Other'], comingSoon: false, ingredients: [{ title: null, items: [{ amount: '1', measure: 'Cup', ingredient: '', comment: null }] }], steps: [] };
+      cur = { path: `${DIRS[col]}/${slug}.md`, sha: null, fm, isNew: true };
+      show(fm, '');
+    };
+    $('#files').onclick = (e) => { const b = e.target.closest('button[data-path]'); if (b) open(b.dataset.path); };
+    $('#filter').oninput = renderList;
+    document.querySelectorAll('.tab').forEach((t) => (t.onclick = () => {
+      document.querySelectorAll('.tab').forEach((x) => x.classList.remove('on')); t.classList.add('on');
+      col = t.dataset.col; cur = null; $('#editor').hidden = true; $('#empty').hidden = false; loadList();
+    }));
+    $('#editor').addEventListener('input', preview);
+    $('#editor').onsubmit = async (e) => {
+      e.preventDefault();
+      let fm;
+      try { fm = collect(); } catch (err) { return status(`Fix frontmatter: ${err.message}`); }
+      if (!fm.title) return status('Title is required');
+      status('Saving…');
+      try {
+        const r = await api('file', { method: 'PUT', body: JSON.stringify({ path: cur.path, sha: cur.sha || undefined, content: serialize(fm, $('#body').value) }) });
+        cur.sha = r.sha; cur.fm = fm;
+        $('#path').textContent = cur.path;
+        status(`Saved (commit ${r.commit.slice(0, 7)}). The site rebuilds in ~1–2 min.`);
+        if (cur.isNew) { cur.isNew = false; loadList(); }
+      } catch (err) { status(`Error: ${err.message}`); }
+    };
+    $('#upload').onchange = async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      status('Uploading image…');
+      const b64 = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.readAsDataURL(file); });
+      try {
+        const r = await api('upload', { method: 'POST', body: JSON.stringify({ name: file.name, base64: b64 }) });
+        const ta = $('#body'); const md = `![${file.name.replace(/\.[^.]+$/, '')}](${r.url})`;
+        ta.setRangeText(md, ta.selectionStart, ta.selectionEnd, 'end'); preview();
+        status(`Uploaded ${r.url} (available after the next rebuild)`);
+      } catch (err) { status(`Upload failed: ${err.message}`); }
+      e.target.value = '';
+    };
+
+    api('me').then((m) => { $('#who').textContent = `Signed in as ${m.email}${m.tokenConfigured ? '' : ' · GITHUB_TOKEN missing'}`; loadList(); })
+      .catch((e) => { $('#who').innerHTML = `<span class="text-red-700">No access: ${esc(e.message)}</span>`; $('#files').innerHTML = ''; });
+  </script>
+</body>
+</html>

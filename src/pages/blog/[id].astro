@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { posts, fmt, tagSlug } from '../../lib';
+export async function getStaticPaths() {
+  return (await posts()).map((p) => ({ params: { id: p.id }, props: { p } }));
+}
+const { p } = Astro.props;
+const { Content } = await render(p);
+---
+<Base title={p.data.title} description={p.data.description}>
+  <p class="text-sm"><a href="/blog" class="text-accent">&larr; All posts</a></p>
+  <article>
+    <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight mt-3">{p.data.title}</h1>
+    <div class="text-sm text-black/55 mt-2 flex flex-wrap gap-x-3">
+      <time datetime={p.data.date.toISOString()}>{fmt(p.data.date)}</time>
+      {p.data.tags.map((t) => <a href={`/blog/tags/${tagSlug(t)}`} class="text-accent">#{t}</a>)}
+    </div>
+    {p.data.source === 'facebook' && (
+      <p class="mt-4 text-sm bg-black/[.03] border-l-4 border-accent px-3 py-2">
+        Originally posted on {p.data.originalUrl ? <a href={p.data.originalUrl} class="text-accent">Facebook</a> : 'Facebook'}{p.data.originalDate && ` on ${fmt(p.data.originalDate)}`}.
+      </p>
+    )}
+    <div class="prose prose-lg max-w-none mt-8 prose-a:text-accent"><Content /></div>
+  </article>
+</Base>
