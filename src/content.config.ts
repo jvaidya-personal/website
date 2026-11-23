@@ -47,6 +47,8 @@ const marathi = defineCollection({
     link: z.string().url().optional(),
     images: z.array(z.object({ src: z.string(), thumb: z.string(), width: z.number(), height: z.number() })).default([]),
     videos: z.array(z.object({ src: z.string(), poster: z.string().optional(), thumb: z.string().optional() })).default([]),
+    // Links from Jiten's own comment(s) on the post ("लिंक कमेंटमध्ये"), shown below the text
+    commentLinks: z.array(z.object({ url: z.string().url(), label: z.string().optional() })).default([]),
   }),
 });
 
