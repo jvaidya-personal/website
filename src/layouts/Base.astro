@@ -1,17 +1,18 @@
 ---
 import '../styles/global.css';
-interface Props { title?: string; description?: string; wide?: boolean }
-const { title, description = 'Jiten Vaidya — technologist, co-founder of PlanetScale, advisor and executive coach.', wide = false } = Astro.props;
+interface Props { title?: string; description?: string; wide?: boolean; lang?: string }
+const { title, description = 'Jiten Vaidya — technologist, co-founder of PlanetScale, advisor and executive coach.', wide = false, lang = 'en' } = Astro.props;
 const fullTitle = title ? `${title} · Jiten Vaidya` : 'Jiten Vaidya';
 const path = Astro.url.pathname;
 const nav = [
   { href: '/', label: 'Home', active: path === '/' },
   { href: '/recipes', label: 'Recipes', active: path.startsWith('/recipes') },
   { href: '/blog', label: 'Blog', active: path.startsWith('/blog') },
+  { href: '/marathi', label: 'मराठी लिखाण', active: path.startsWith('/marathi') },
 ];
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,6 +24,7 @@ const nav = [
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="alternate" type="application/rss+xml" title="Jiten Vaidya — Blog" href="/rss.xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <slot name="head" />
   </head>
   <body class="min-h-screen bg-white text-black font-sans antialiased flex flex-col">
     <header class="site border-b border-black/10">

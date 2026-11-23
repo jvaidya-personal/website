@@ -1,0 +1,34 @@
+---
+import Marathi from '../../layouts/Marathi.astro';
+import { marathiPosts, mrDate, firstLine, excerpt } from '../../lib/marathi';
+const items = await marathiPosts();
+const slugOf = (p: { id: string }) => p.id;
+---
+<Marathi title="मराठी लिखाण" description="जितेन वैद्य यांचे मराठी लिखाण — फेसबुकवरील पोस्ट्स">
+  <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight">मराठी लिखाण</h1>
+  <p class="text-black/60 mt-2">फेसबुकवर वेळोवेळी लिहिलेल्या माझ्या मराठी पोस्ट्स.</p>
+  <ul class="divide-y divide-black/10 mt-6">
+    {items.map((p) => {
+      const thumb = p.data.images[0]?.thumb ?? p.data.videos[0]?.thumb;
+      const ex = excerpt(p.body ?? '');
+      return (
+        <li class="mr-list-item">
+          <a href={`/marathi/${slugOf(p)}`} class="group flex gap-4 py-5 items-start">
+            <div class="flex-1 min-w-0">
+              <time datetime={p.data.date.toISOString()} class="text-sm text-black/55">{mrDate(p.data.date)}</time>
+              <span class="block text-lg sm:text-xl font-semibold leading-snug mt-0.5 group-hover:text-accent">{firstLine(p.body ?? '')}</span>
+              {ex && <span class="ex block text-black/70 mt-1 leading-relaxed">{ex}</span>}
+            </div>
+            {thumb && (
+              <span class="relative shrink-0">
+                <img src={thumb} alt="" loading="lazy" decoding="async" class="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg border border-black/10" />
+                {!p.data.images.length && <span class="absolute inset-0 grid place-items-center text-white text-2xl drop-shadow">▶</span>}
+              </span>
+            )}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+  <p class="mt-8 text-sm text-black/50">{items.length} पोस्ट्स</p>
+</Marathi>

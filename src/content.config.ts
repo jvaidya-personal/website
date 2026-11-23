@@ -37,4 +37,17 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { recipes, blog };
+// मराठी लिखाण: Marathi Facebook posts, one file per post (src/content/marathi/<date>-<time>.md).
+// The body is the original post text, shown verbatim (not parsed as Markdown).
+const marathi = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/marathi' }),
+  schema: z.object({
+    fbId: z.string(),
+    date: z.coerce.date(),
+    link: z.string().url().optional(),
+    images: z.array(z.object({ src: z.string(), thumb: z.string(), width: z.number(), height: z.number() })).default([]),
+    videos: z.array(z.object({ src: z.string(), poster: z.string().optional(), thumb: z.string().optional() })).default([]),
+  }),
+});
+
+export const collections = { recipes, blog, marathi };

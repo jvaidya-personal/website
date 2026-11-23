@@ -1,0 +1,40 @@
+---
+import Marathi from '../../layouts/Marathi.astro';
+import { marathiPosts, mrDate, firstLine, textToHtml, type MarathiPost } from '../../lib/marathi';
+export async function getStaticPaths() {
+  const all = await marathiPosts();
+  return all.map((p, i) => ({ params: { slug: p.id }, props: { p, newer: all[i - 1], older: all[i + 1] } }));
+}
+interface Props { p: MarathiPost; newer?: MarathiPost; older?: MarathiPost }
+const { p, newer, older } = Astro.props;
+const title = firstLine(p.body ?? '', 70);
+---
+<Marathi title={title} description={firstLine(p.body ?? '', 150)}>
+  <p class="text-sm"><a href="/marathi" class="text-accent">&larr; सर्व लिखाण</a></p>
+  <article class="mt-4">
+    <time datetime={p.data.date.toISOString()} class="text-sm text-black/55">{mrDate(p.data.date)}</time>
+    <div class="mr-body mt-4" set:html={textToHtml(p.body ?? '')} />
+    {p.data.images.length > 0 && (
+      <div class="mt-6 grid gap-4">
+        {p.data.images.map((im) => (
+          <a href={im.src} target="_blank" rel="noopener">
+            <img src={im.src} width={im.width} height={im.height} alt="" loading="lazy" decoding="async" class="w-full h-auto rounded-lg border border-black/10" />
+          </a>
+        ))}
+      </div>
+    )}
+    {p.data.videos.map((v) => (
+      <video controls preload="metadata" playsinline poster={v.poster} class="mt-6 w-full rounded-lg bg-black max-h-[80vh]">
+        <source src={v.src} type="video/mp4" />
+      </video>
+    ))}
+    {p.data.link && (
+      <p class="mt-6 text-sm">मूळ लिंक: <a href={p.data.link} rel="noopener" class="text-accent break-all">{p.data.link}</a></p>
+    )}
+    <p class="mt-6 text-sm text-black/50">फेसबुकवर पूर्वप्रकाशित, {mrDate(p.data.date)}.</p>
+  </article>
+  <nav class="mt-10 pt-6 border-t border-black/10 grid grid-cols-2 gap-4 text-sm">
+    <div>{newer && <a href={`/marathi/${newer.id}`} class="group block"><span class="text-black/50">&larr; नवीन</span><span class="block mt-1 font-medium group-hover:text-accent">{firstLine(newer.body ?? '', 60)}</span></a>}</div>
+    <div class="text-right">{older && <a href={`/marathi/${older.id}`} class="group block"><span class="text-black/50">जुने &rarr;</span><span class="block mt-1 font-medium group-hover:text-accent">{firstLine(older.body ?? '', 60)}</span></a>}</div>
+  </nav>
+</Marathi>
