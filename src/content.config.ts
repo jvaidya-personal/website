@@ -55,7 +55,7 @@ const marathi = defineCollection({
   }),
 });
 
-// On Writers: Jiten's English essays on the writers he loves (one .md per essay, text as written).
+// Science Fiction Writers I Like (/writers): Jiten's English essays on the writers he loves (one .md per essay, text as written).
 const essays = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/essays' }),
   schema: z.object({

@@ -12,7 +12,7 @@ const { e, prev, next } = Astro.props;
 const html = await marked.parse(e.body ?? '');
 ---
 <Base title={e.data.title}>
-  <p class="text-sm"><a href="/writers" class="text-accent">&larr; On Writers</a></p>
+  <p class="text-sm"><a href="/writers" class="text-accent">&larr; Science Fiction Writers I Like</a></p>
   <article>
     <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight mt-3">{e.data.title}</h1>
     <div class="prose prose-lg max-w-none mt-8 prose-a:text-accent"><Fragment set:html={html} /></div>
