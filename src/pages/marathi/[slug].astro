@@ -21,7 +21,7 @@ const title = firstLine(p.body ?? '', 70);
           {p.data.commentLinks.map((l) => (
             <li>
               {l.label && <span class="block">{l.label}</span>}
-              <a href={l.url} rel="noopener" class="text-accent break-all">{l.url}</a>
+              <a href={l.url} rel={l.url.startsWith('/') ? undefined : 'noopener'} class:list={['text-accent', !l.text && 'break-all']}>{l.text ?? l.url}</a>
             </li>
           ))}
         </ul>
