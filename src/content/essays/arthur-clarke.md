@@ -1,0 +1,37 @@
+---
+title: "On Arthur Clarke"
+order: 3
+source: "https://docs.google.com/document/d/1fW2rKLHOP4lrFSCl-WWNLiUNohlcitghpxfZYxjxfxs/edit"
+---
+
+I think I first came across Arthur Clarke when I was about 14\. This was before I had started reading books in English. My family used to subscribe to a Marathi magazine called Kirloskar and there was an article on Arthur Clarke in the special Diwali issue of this magazine. I do not remember who the author was. But it might have been Nandoo Londhe.
+
+I don't remember much from that article except a reference to his novel Rendezvous with Rama, the 1968 movie based on his short story 2001 : A Space Odyssey, and more specifically a mention of the musical piece [Thus Spoke Zarathrusta](https://www.youtube.com/watch?v=YU88Awrb0fE) in the score of the film. I also associate a reference to the music of Dr Zhivago with the same article but I have no idea why.
+
+When I was 16, I discovered the University Library in Aurangabad, to which I had access because of my parents. It had a small science fiction section with books by Arthur Clarke and Isaac Asimov. Until that point I was a prodigious Marathi reader but I had not read any novel length English books. I remember reading a collection of short stories by Asimov and being blown away by [*Starfall*](https://en.wikipedia.org/wiki/Nightfall_\(Asimov_novelette_and_novel\)) and [*The Last Question*](https://users.ece.cmu.edu/~gamvrosi/thelastq.html). I also read [*Rendezvous with Rama*](https://en.wikipedia.org/wiki/Rendezvous_with_Rama) for the first time during that time though it was heavy going.
+
+I really started reading science fiction during my undergraduate years at IIT Bombay. I probably read all books by Arthur Clarke (and Isaac Asimov, but more on him later) during those years. *[A Fall of Moondust](https://en.wikipedia.org/wiki/A_Fall_of_Moondust), [The Fountains of Paradise](https://en.wikipedia.org/wiki/The_Fountains_of_Paradise), [Childhood's End](https://en.wikipedia.org/wiki/Childhood%27s_End), [The Songs of the Distant Earth](https://en.wikipedia.org/wiki/The_Songs_of_Distant_Earth)*. All books with lyrical and evocative names.
+
+The father of a close friend of mine whose house I used to visit on the weekends from IIT recommended *Childhood's End* to me when he heard about my love for science fiction. In my estimation that is Arthur Clark's best book.
+
+When we look at world events, we often feel a sense of helplessness. The issues are too complex. There are too many shards of gray. All sides are compromised. It is difficult to tell what the right action is for a nation state, or for an organization or for an individual. The same is true with badly governed places where graft, inefficiency and ill intent is making lives for millions very hard needlessly. Again, we feel powerless and impotent to affect any change. The siren call of a strong leader and a strong state who are powerful and omniscient is palpable at times like this. We crave something like Pax Romana or Pax Britannia or Pax Americana. But we also know that power corrupts, and absolute power corrupts absolutely, and so that's not a viable solution ever either.
+
+At times like these we all crave an omniscient omnipotent entity, who is above the petty human strife and the petty human achievement, who would know which side is right and which side is wrong and what the right thing to do is and what the right amount of power to apply is, and can apply it and get the results that increase human happiness.
+
+The thought experiment that Arthur Clarke conducts in this book is precisely that \- by giving us aliens that fulfill all those requirements. Their spaceships appear in the skies above world capitals one day. They make contact only with the UN and specifically the UN general Secretary, and are devastatingly effective in enforcing a fairly impartial system of justice based on fairly humanistic principles and eradicate wars, poverty, disease and unnecessary suffering in a matter of a few decades.
+
+Here, we come to another interesting idea in this novel. The suspicion that if we follow the reductive, ruthless, rational thought at the cost of our softer emotions, that choice in the fork might irrevocably lead us down the path where we will never be able to achieve the spiritual heights that we otherwise could have reached as a species.
+
+Because the aliens arrive and intervene at crucial point in our development, the humanity has the luxury to follow the spiritual side of our being and after a certain point, all the new children born exhibit a spiritual awareness and spiritual abilities and in a matter of another few decades the whole humanity transcends to a higher plane of being. Only a few older humans are left on the empty Earth.
+
+And then at the end we are served the denouement. The elderly bureaucrat, the UN General Secretary who has dealt with the aliens and who has been their mouthpiece and sort of their figurehead for implementing this program, who has by now become friends with his alien counterpart, but who has never actually seen how the aliens physically look, is granted his wish to go and visit the aliens and see them in person on their spaceship.
+
+In the final, touching interview with the Alien, two things are revealed. The first is that the aliens themselves did take the path of rationality down the fork between rationality and spirituality at some point in their history and this made them immensely powerful, they have immense physical wealth but they will never achieve the spiritual Transcendence that humanity has. They are forever doomed to be the midwives for other civilizations who they help at crucial junctures in their development.
+
+And the second revelation is that the aliens have forked tongues and forked tails. They look exactly like the devil. Somehow this encounter between the two species has reverberated back in time and into humanity's collective subconscious.
+
+Amongst other things, we are left wondering about the significance of this fact. I found it to be an extremely thought-provoking novel and it has stayed with me through the years.
+
+I will call Arthur Clarke one of the greats entirely based on this novel. Science fiction as a genre is full of interesting ideas. There are better, more dynamic writers than Clarke. But I have not come across another novel which has this scale and tackles the existential issues that we all need to face in such a stark manner. Ian M. Banks deals with some of these issues \- the helplessness and complicity that comes from living in a rich powerful Nation which is making decisions which are based on the realpolitik rather than any sense of fair play or ideals that it professes to believe in, but also realizing that given the world that we live in probably the decisions based on realpolitik are the best anybody from outside can do for the populations that are suffering. He depicts this with a lot of feeling and depth in his early Culture novels. But he too does not offer anything of this breathtaking scope that makes you think.
+
+Arthur C. Clarke spent many years of his retirement in Sri Lanka and he had a fondness for the Indian subcontinent and Indian mythology. He also invented the artificial satellite pretty much on his own. The original essay that works out the orbits and the energy needed to put an object into the orbit was written by him well before Sputnik. He was a great man and a great science fiction writer.  

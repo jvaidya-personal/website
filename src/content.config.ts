@@ -55,4 +55,14 @@ const marathi = defineCollection({
   }),
 });
 
-export const collections = { recipes, blog, marathi };
+// On Writers: Jiten's English essays on the writers he loves (one .md per essay, text as written).
+const essays = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/essays' }),
+  schema: z.object({
+    title: z.string(),
+    order: z.number(),
+    source: z.string().url().optional(),
+  }),
+});
+
+export const collections = { recipes, blog, marathi, essays };

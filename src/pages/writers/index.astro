@@ -1,0 +1,21 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const items = (await getCollection('essays')).sort((a, b) => a.data.order - b.data.order);
+const firstPara = (body = '') => {
+  const p = body.split(/\n\s*\n/).find((x) => x.trim()) ?? '';
+  const plain = p.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[*_]/g, '').replace(/\\(.)/g, '$1').trim();
+  return plain.length > 220 ? plain.slice(0, 220).replace(/\s+\S*$/, '') + '…' : plain;
+};
+---
+<Base title="On Writers" description="Jiten Vaidya on the writers he loves">
+  <h1 class="text-3xl font-semibold tracking-tight">On Writers</h1>
+  <ul class="divide-y divide-black/10 mt-4">
+    {items.map((e) => (
+      <li class="py-5">
+        <a href={`/writers/${e.id}`} class="text-xl font-semibold hover:text-accent">{e.data.title}</a>
+        <p class="mt-2 text-black/75">{firstPara(e.body)}</p>
+      </li>
+    ))}
+  </ul>
+</Base>
