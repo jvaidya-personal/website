@@ -28,11 +28,11 @@ const nav = [
   </head>
   <body class="min-h-screen bg-white text-black font-sans antialiased flex flex-col">
     <header class="site border-b border-black/10">
-      <div class="mx-auto max-w-3xl px-5 py-4 flex items-center justify-between gap-4">
-        <a href="/" class="font-semibold tracking-tight text-lg">Jiten Vaidya</a>
-        <nav class="flex gap-5 text-sm">
+      <div class="mx-auto max-w-3xl px-5 py-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <a href="/" class="font-semibold tracking-tight text-lg whitespace-nowrap">Jiten Vaidya</a>
+        <nav class="flex flex-wrap gap-x-4 sm:gap-x-5 gap-y-1 text-sm">
           {nav.map((n) => (
-            <a href={n.href} class:list={['hover:text-accent', n.active ? 'text-accent font-semibold' : 'text-black']} aria-current={n.active ? 'page' : undefined}>{n.label}</a>
+            <a href={n.href} class:list={['hover:text-accent whitespace-nowrap', n.active ? 'text-accent font-semibold' : 'text-black']} aria-current={n.active ? 'page' : undefined}>{n.label}</a>
           ))}
         </nav>
       </div>
