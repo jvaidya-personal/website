@@ -1,0 +1,23 @@
+---
+import Base from './Base.astro';
+interface Props { title?: string; description?: string }
+const { title, description } = Astro.props;
+---
+<Base title={title} description={description} lang="mr">
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;600&display=swap" rel="stylesheet" />
+  </Fragment>
+  <div class="mr">
+    <slot />
+  </div>
+</Base>
+<style is:global>
+  .mr { font-family: 'Mukta', 'Noto Sans Devanagari', 'Nirmala UI', 'Kohinoor Devanagari', var(--font-sans); }
+  .mr .mr-serif { font-family: 'Noto Serif Devanagari', 'Mukta', var(--font-serif); }
+  .mr .mr-body { font-size: 1.2rem; line-height: 1.85; color: rgb(0 0 0 / .88); }
+  .mr .mr-body p { margin: 0 0 1.1em; }
+  .mr .mr-body a { color: var(--color-accent); overflow-wrap: anywhere; }
+  .mr-list-item .ex { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+</style>
