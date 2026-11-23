@@ -50,6 +50,8 @@ const marathi = defineCollection({
     // Links from Jiten's own comment(s) on the post ("लिंक कमेंटमध्ये"), shown below the text
     // url: absolute, mailto:, or a site path like /marathi/...; text: optional link text (defaults to the url)
     commentLinks: z.array(z.object({ url: z.string().regex(/^(https?:\/\/|mailto:|\/)/), label: z.string().optional(), text: z.string().optional() })).default([]),
+    // Substantive text from his own comment (e.g. the original poem he translated), shown verbatim below the post
+    originalPoem: z.object({ heading: z.string(), attribution: z.string().optional(), text: z.string() }).optional(),
   }),
 });
 
